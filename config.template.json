@@ -1,0 +1,19 @@
+{
+  "log": { "loglevel": "warning", "access": "/dev/stdout", "error": "/dev/stderr" },
+  "inbounds": [{
+    "port": ${PORT},
+    "protocol": "vless",
+    "settings": {
+      "clients": [{ "id": "${UUID}" }],
+      "decryption": "none"
+    },
+    "streamSettings": {
+      "network": "ws",
+      "security": "none",
+      "wsSettings": {
+        "path": "${WS_PATH}"
+      }
+    }
+  }],
+  "outbounds": [{ "protocol": "freedom", "tag": "direct" }]
+}
