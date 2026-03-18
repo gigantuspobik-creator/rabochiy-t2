@@ -1,0 +1,80 @@
+
+<style>
+.gen-wrap { padding: 1rem 0; font-family: var(--font-sans); }
+.gen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.gen-field { display: flex; flex-direction: column; gap: 4px; }
+.gen-field label { font-size: 12px; color: var(--color-text-secondary); font-weight: 500; }
+.gen-field input, .gen-field select { font-size: 13px; padding: 7px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); }
+.gen-out { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 14px; font-family: var(--font-mono); font-size: 11px; word-break: break-all; color: var(--color-text-primary); min-height: 48px; line-height: 1.6; }
+.gen-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.gen-btn { font-size: 13px; padding: 7px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); cursor: pointer; }
+.gen-btn:hover { background: var(--color-background-secondary); }
+.gen-btn.primary { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+.gen-btn.primary:hover { opacity: 0.85; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); background: var(--color-background-info); color: var(--color-text-info); display: inline-block; margin-bottom: 12px; }
+.section-title { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin: 1rem 0 6px; }
+</style>
+<div class="gen-wrap">
+  <span class="tag">VLESS Reality</span>
+  <div class="section-title">Сервер</div>
+  <div class="gen-grid">
+    <div class="gen-field"><label>Address (хост)</label><input id="g-addr" value="maglev.proxy.rlwy.net"></div>
+    <div class="gen-field"><label>Port</label><input id="g-port" value="58067"></div>
+    <div class="gen-field"><label>UUID</label><input id="g-uuid" value="7b969b32-1cff-4456-922a-c8e704b9c4d2"></div>
+  </div>
+  <div class="section-title">Reality</div>
+  <div class="gen-grid">
+    <div class="gen-field"><label>Public Key</label><input id="g-pubkey" value="X8YtsT7rEuSnvIaDPJURevlUpW72Nj1qw8ol2qi0yDM"></div>
+    <div class="gen-field"><label>SNI / serverName</label><input id="g-sni" value="vk.com"></div>
+    <div class="gen-field"><label>Short ID</label><input id="g-sid" value="796362e1"></div>
+    <div class="gen-field"><label>Fingerprint</label>
+      <select id="g-fp"><option value="chrome" selected>chrome</option><option value="firefox">firefox</option><option value="safari">safari</option><option value="edge">edge</option><option value="random">random</option></select>
+    </div>
+    <div class="gen-field"><label>Flow</label>
+      <select id="g-flow"><option value="xtls-rprx-vision" selected>xtls-rprx-vision</option><option value="">none</option></select>
+    </div>
+    <div class="gen-field"><label>Название профиля</label><input id="g-name" value="Railway-VPN"></div>
+  </div>
+  <div class="section-title">Готовая ссылка</div>
+  <div class="gen-out" id="g-result">нажми «Сгенерировать»</div>
+  <div class="gen-actions">
+    <button class="gen-btn primary" onclick="generate()">Сгенерировать</button>
+    <button class="gen-btn" onclick="copyLink()">Скопировать ссылку</button>
+    <button class="gen-btn" onclick="clearAll()">Сбросить</button>
+  </div>
+</div>
+<script>
+function v(id){ return document.getElementById(id).value.trim(); }
+function generate(){
+  const uuid=v('g-uuid'),addr=v('g-addr'),port=v('g-port'),
+        pk=v('g-pubkey'),sni=v('g-sni'),sid=v('g-sid'),
+        fp=v('g-fp'),flow=v('g-flow'),name=v('g-name');
+  if(!uuid||!addr||!port||!pk||!sni||!sid){
+    document.getElementById('g-result').textContent='Заполни все поля';return;
+  }
+  const params=new URLSearchParams();
+  params.set('type','tcp');
+  params.set('security','reality');
+  params.set('pbk',pk);
+  params.set('fp',fp);
+  params.set('sni',sni);
+  params.set('sid',sid);
+  if(flow) params.set('flow',flow);
+  const link=`vless://${uuid}@${addr}:${port}?${params.toString()}#${encodeURIComponent(name)}`;
+  document.getElementById('g-result').textContent=link;
+}
+function copyLink(){
+  const txt=document.getElementById('g-result').textContent;
+  if(!txt||txt==='нажми «Сгенерировать»'||txt==='Заполни все поля'){generate();}
+  const t=document.getElementById('g-result').textContent;
+  navigator.clipboard.writeText(t).then(()=>{
+    const btn=document.querySelectorAll('.gen-btn')[1];
+    btn.textContent='Скопировано!';setTimeout(()=>btn.textContent='Скопировать ссылку',1500);
+  });
+}
+function clearAll(){
+  ['g-addr','g-port','g-uuid','g-pubkey','g-sni','g-sid','g-name'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('g-result').textContent='нажми «Сгенерировать»';
+}
+generate();
+</script>
